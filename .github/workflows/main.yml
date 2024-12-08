@@ -17,15 +17,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      
-
-      # Set up Java
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'  # Options: 'temurin', 'zulu', 'adopt', etc.
-          java-version: '17'       # Specify the required JDK version
-
       # Import GPG Keys
       - name: Import GPG Keys
         env:
@@ -36,19 +27,26 @@ jobs:
           echo "$GPG_PUBLIC_KEY" | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
 
-      # Set GPG Passphrase
-      - name: Set GPG Passphrase
-        run: echo "GPG_PASSPHRASE=${{ secrets.GPG_PASSPHRASE }}" >> $GITHUB_ENV
+      # Configure GPG Passphrase
+      - name: Configure GPG Passphrase
+        run: |
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          echo "GPG_TTY=$(tty)" >> $GITHUB_ENV
 
-      # Build with Maven
-      - name: Build with Maven
-        run: mvn clean install -DskipTests
+      # Set up Java
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
 
-      # Sign JAR with GPG
-      - name: Sign JAR with GPG
-        run: mvn clean deploy -DskipTests -Psign
+      # Build and Sign Artifacts
+      - name: Build and Sign Artifacts
+        run: mvn clean deploy -DskipTests -Psign -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
 
-      # Optional: Archive build artifacts
+      # Optional: Upload Artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
