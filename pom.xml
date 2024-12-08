@@ -51,6 +51,30 @@
             <artifactId>commons-codec</artifactId>
             <version>1.15</version>
         </dependency>
+        
+        <!-- Spring Dependencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>5.3.23</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.3.23</version>
+        </dependency>
+
+        <!-- Additional Libraries -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -79,6 +103,20 @@
                     <source>11</source> <!-- Updated to Java 11 -->
                     <target>11</target> <!-- Updated to Java 11 -->
                     <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Jar Plugin for custom configuration -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Main-Class>com.global.iop.MainClass</Main-Class>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
