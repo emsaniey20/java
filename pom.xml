@@ -121,23 +121,24 @@
             </plugin>
 
             <!-- Maven GPG Plugin for signing -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.4</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <gpgExe>gpg</gpgExe>
-                    <keyname>FA170C462EEE70D34A0406C03D6A748F4D096AB3</keyname>
-                    <passphrase>${env.GPG_PASSPHRASE}</passphrase> <!-- Pull passphrase from environment variable -->
-                </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<gpgExe>gpg</gpgExe>
+					<keyname>FA170C462EEE70D34A0406C03D6A748F4D096AB3</keyname>
+					<passphrase>${env.GPG_PASSPHRASE}</passphrase>
+				</configuration>
+			</plugin>
+			
         </plugins>
     </build>
 </project>
