@@ -1,4 +1,4 @@
-name: Maven Build and GPG Sign
+name: Build Maven Project
 
 on:
   push:
@@ -13,38 +13,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'adoptopenjdk'
+      
 
-    - name: Import GPG Keys
-      run: |
-        echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-        echo "$GPG_PUBLIC_KEY" | gpg --batch --import
-        gpg --list-secret-keys --keyid-format LONG
+      # Set up Java
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'  # Options: 'temurin', 'zulu', 'adopt', etc.
+          java-version: '17'       # Specify the required JDK version
 
-    - name: Set GPG Passphrase
-      run: echo "GPG_PASSPHRASE=${{ secrets.GPG_PASSPHRASE }}" >> $GITHUB_ENV
+      # Import GPG Keys
+      - name: Import GPG Keys
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          echo "$GPG_PUBLIC_KEY" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
 
-    - name: Build with Maven
-      run: mvn clean install -DskipTests
+      # Set GPG Passphrase
+      - name: Set GPG Passphrase
+        run: echo "GPG_PASSPHRASE=${{ secrets.GPG_PASSPHRASE }}" >> $GITHUB_ENV
 
-    - name: Sign JAR with GPG
-      run: mvn clean deploy -DskipTests -Psign
+      # Build with Maven
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
 
-    - name: Upload JAR to Maven Repository
-      if: success()
-      run: |
-        mvn deploy:deploy-file \
-          -Dfile=target/iop-api-sdk-1.3.5-ae.jar \
-          -Durl=https://your.maven.repo/repository/maven-releases/ \
-          -DrepositoryId=your-repository-id \
-          -DpomFile=pom.xml \
-          -Dfiles=target/iop-api-sdk-1.3.5-ae.jar \
-          -Dusername=${{ secrets.MAVEN_USERNAME }} \
-          -Dpassword=${{ secrets.MAVEN_PASSWORD }}
+      # Sign JAR with GPG
+      - name: Sign JAR with GPG
+        run: mvn clean deploy -DskipTests -Psign
+
+      # Optional: Archive build artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: target/*.jar
